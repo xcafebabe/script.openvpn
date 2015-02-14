@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+	<!--Labels-->
+	<string id="1000"></string>
+
+	<!--Settings-->
+	<string id="2000">OpenVPN</string>
+	<string id="2001">Importar archivo de configuración OpenVPN</string>
+	<string id="2002">Borrar archivo de configuración OpenVPN</string>
+	<string id="2003">Propiedades OpenVPN</string>
+	<string id="2004">Dirección IP de control</string>
+	<string id="2005">Puerto de control</string>
+	<string id="2006">Argumentos adicionales</string>
+	<string id="2007">OpenVPN Configuración</string>
+	<string id="2008">Mostrar GeoLocalization</string>
+	<string id="2009">Tiempo de espera</string>
+	<string id="2010">Script</string>
+	<string id="2011">Usar sudo cuando se ejecuta OpenVPN</string>
+	<string id="2012">Contraseña es requerida</string>
+	<string id="2020">Modo Experto</string>
+	<string id="2021">Debug</string>
+
+	<!--Dialogs-->
+	<string id="3000">Importar archivo de configuración OpenVPN</string>
+	<string id="3001">Introduzca un nombre para la configuración OpenVPN</string>
+	<string id="3002">OpenVPN</string>
+	<string id="3003">Una configuración OpenVPN ya existe con este nombre. Sobreescribir?</string>
+	<string id="3004">Se ha cancelado importar.</string>
+	<string id="3005">Importar ha fallado. Debes especificar un nombre para la configuración OpenVPN.</string>
+	<string id="3006">Esta seguro que deseas eliminar esta configuración OpenVPN?</string>
+	<string id="3007">Se hace cancellado borrar.</string>
+	<string id="3008">No existe configuración OpenVPN para borrar.</string>
+	<string id="3009">Una proceso OpenVPN aparentemente está en ejecución.</string>
+	<string id="3010">Desconectar?</string>
+	<string id="3011">Un error ha ocurrido mientras OpenVPN se intentaba conectar</string>
+	<string id="3012">Introduzca su password sudo</string>
+	<string id="3013">Seleccione la configuración OpenVPN </string>
+	<string id="3014">Desconectar OpenVPN</string>
+
+	<!--Notifcations-->
+	<string id="4000">IP: %s; País: %s</string>
+	<string id="4001">Conexión finalizada: %s</string>
+	<string id="4002">Conexión iniciada : %s</string>
+
+</strings>
