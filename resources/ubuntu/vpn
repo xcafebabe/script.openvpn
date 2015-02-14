@@ -1,0 +1,215 @@
+#!/bin/bash
+
+############################################################################
+#                                                                          #
+#   Copyright (C) 2012  Luis Toubes (toubes@gmail.com)                     #
+#                                                                          #
+#   This program is free software: you can redistribute it and/or modify   #
+#   it under the terms of the GNU General Public License as published by   #
+#   the Free Software Foundation, either version 3 of the License, or      #
+#   (at your option) any later version.                                    #
+#                                                                          #
+#   This program is distributed in the hope that it will be useful,        #
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          #
+#   GNU General Public License for more details.                           #
+#                                                                          #
+#   You should have received a copy of the GNU General Public License      #
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.  #
+#                                                                          #
+############################################################################
+
+##############
+# PROPERTIES #
+##############
+
+# Key for IP-Info online. 
+# Register and get a key here http://ipinfodb.com/login.php
+IP_INFO_DB_KEY="45a9ded2ecea5cabc88b1b4a02e1943859f641488788efe2d2989a460644da82"
+IP=""
+LAST_IP=""
+
+# Where is your vpn folder?
+# By convention this folder must have this structure
+# + YOUR_VPN_FOLDER/
+#    + conf/                 - Configuration folder  
+#       server_country.ovpn  - Server ovpn descriptor file
+#       *.ovpn               - As many as ovpn descriptor you have
+#    + keys/                 - Keys folder
+#       ca.crt               - Certificate Authority
+#       user.crt             - Your certificate
+#       user.key             - Your private key
+YOUR_VPN_FOLDER=/home/lucas/Vpn
+
+# Default Options to make IP Location Request
+WGET_OPTION="=-b -q --wait=3 --waitretry=2 --random-wait --limit-rate=9578 "
+WGET_AGENT="Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+
+# VPN DAEMON
+VPN_DAEMON=/usr/sbin/openvpn
+
+# LOCK FILE
+LCK=/var/lock/openvpn.lck
+
+##############
+# VALIDATORS #
+##############
+
+if [ "$IP_INFO_DB_KEY" = "" ]; then
+  echo "[ERROR] Please edit the script to provide the key for IP Location (IP_INFO_DB_KEY)"
+  exit
+fi
+
+if [ "$YOUR_VPN_FOLDER" = "" ]; then
+  echo "[ERROR] Please edit the script to provide your vpn folder. (YOUR_VPN_FOLDER)"
+  exit
+fi
+
+if [ ! -d $YOUR_VPN_FOLDER/conf ]; then
+   echo "[ERROR] Your ovpn files must be included inside $YOUR_VPN_FOLDER/conf directory"
+   exit
+fi
+
+#############
+# FUNCTIONS #
+#############
+
+function get_local_ip () {
+  IP=`/sbin/ifconfig eth0 | grep "inet:" | awk -F: '{print $2}' | awk '{print $1}'`
+  echo 'get_local_ip :: $IP'
+}
+
+function get_external_ip () {
+  IP=`dig @208.67.222.220 +short myip.opendns.com`
+  echo "get_external_ip :: $IP"
+}
+
+function get_location() {
+  URL="http://api.ipinfodb.com/v3/ip-country/?key=$IP_INFO_DB_KEY&ip=$IP&format=raw"
+  INFO=`wget -qO- --user-agent="$WGET_AGENT" "$URL" 2>&1`
+  echo "get_location :: $INFO"
+}
+
+function save_location() {
+  LAST_IP=$IP
+  LAST_COUNTRY=$(echo $INFO | awk -F';' '{print $5}')
+  echo "IP: $LAST_IP - FROM: $LAST_COUNTRY"
+}
+
+function show_vpn_list() {
+  if [ `ls conf/*.ovpn | wc -l` = "0" ]; then
+    echo "[ERROR] We can't find ovpn files. Check your conf folder in $YOUR_VPN_FOLDER"
+    echo "[ERROR] By convention ovpn filename must be NAME_2-LETTER-COUNTRY.ovpn . Ej. castor_de.ovpn"
+    exit 1
+  fi  
+
+  echo "Choose your vpn service: "
+  echo "************************ "
+  echo "   Name     |   Country  "
+  echo "------------------------ "
+  for f in $(ls -1 conf/*.ovpn | tr '\n' '\0' | xargs -0 -n 1 basename); do
+    filename=${f%%.*}
+    server=$(echo $filename | awk -F'_' '{print $1}')
+    country=$(echo $filename | awk -F'_' '{print $2}')
+    printf '%10s  | %4s \n' $server $country
+  done
+  
+  echo "************************"
+  echo " To start a new vpn service: sudo $(basename $0) start name_country"
+}
+
+function getVpnPid(){
+  echo "$(pidof openvpn)"
+}
+
+function startVpn(){
+  local vpnpid=$(getVpnPid)
+
+  if [[ $vpnpid ]]; then
+    echo "Openvpn is already running [pid:$vpnpid]"
+    exit 1
+  fi
+
+  cd $YOUR_VPN_FOLDER
+  if [ -f conf/$1.ovpn ] ; then
+    echo "Starting $1 service ..."
+    echo "Getting actual localization:"
+    get_external_ip
+    get_location
+    save_location
+    echo "Running openvpn client ..."
+    /usr/sbin/openvpn conf/$1.ovpn
+    echo "Waiting 10 sec ..."
+    sleep 10
+    local vpnpid=$(getVpnPid)
+    if [[ $vpnpid ]]; then
+      echo "Checking new localization ..."
+      get_external_ip
+      if [ $IP == $LAST_IP ]; then
+        echo "Ups! You are not connected to the VPN.  The IP $IP is the same after running succesfuly VPN $1."
+        exit 1
+      else
+        get_location
+        save_location
+        echo "Have fun!!!"
+      fi
+    else
+      echo "openvpn is not running!!!"
+      echo "Try it again or you can check $YOUR_VPN_SERVER/$1.log to verify the problem"
+    fi
+  else
+    show_vpn_list
+  fi
+}
+
+function stopVpn(){
+  local vpnpid=$(getVpnPid)
+  if [[ $vpnpid ]]; then
+    echo "Stopping openvpn service"
+    killall -15 openvpn
+    echo "Done ..."
+  else
+    echo "OpenVpn is not running"
+  fi
+}
+
+#########
+# LOGIC #
+#########
+test -x $DAEMON || exit 0
+
+case "$1" in
+  start)
+    startVpn $2 
+    ;;
+  stop)
+    stopVpn
+    ;;
+  status)
+    vpnpid=$(getVpnPid)
+    if [[ $vpnpid ]]; then
+      echo "OpenVpn [pid:$vpnpid] is running"
+    else
+      echo "OpenVpn is not running"        
+    fi
+    get_external_ip
+    get_location
+    save_location
+    ;;
+  restart)
+    vpnpid=$(getVpnPid)
+    if [[ $vpnpid ]]; then
+      echo "OpenVpn [pid:$vpnpid] is running"
+    else
+      echo "Restarting OpenVpn"
+      stopVpn
+      startVpn $2
+    fi
+    ;;
+  *)
+    echo "Usage: sudo $(basename $0) start|stop|status|restart"
+    exit 1
+    ;;
+esac
+
+exit 0
