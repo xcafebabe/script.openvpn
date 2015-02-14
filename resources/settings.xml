@@ -4,6 +4,7 @@
 		<setting label="2007" type="lsep"/>
 		<setting label="2001" type="action" action="RunScript(script.openvpn, import)"/>
 		<setting label="2002" type="action" action="RunScript(script.openvpn, delete)"/>
+		<setting label="2008" type="action" action="RunScript(script.openvpn, location)"/>
 		<setting label="2003" type="lsep"/>
 		<setting id="openvpn" type="file" label="2000" default="/usr/bin/openvpn"/>
 		<setting id="ip" type="ipaddress" label="2004" default="127.0.0.1"/>
@@ -16,5 +17,6 @@
 	</category>
 	<category label="2020">
 		<setting id="debug" type="bool" label="2021" default="false"/>
+		<setting id="timeout" type="number" label="2009" default="5"/>
 	</category>
 </settings>

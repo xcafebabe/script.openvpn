@@ -68,6 +68,8 @@ _ip = _settings['ip']
 _port = int(_settings['port'])
 _args = _settings['args']
 _sudo = (_settings['sudo'] == 'true')
+_timeout = int(_settings['timeout'])
+
 if _sudo:
     _sudopwdrequired = (_settings['sudopwdrequired'] == 'true')
 else:
@@ -85,7 +87,7 @@ if _sudo:
 
 def get_geolocation():
     try:
-        url = 'http://api.ipinfodb.com/v3/ip-city/?key=24e822dc48a930d92b04413d1d551ae86e09943a829f971c1c83b7727a16947f&format=xml'
+        url = 'http://api.ipinfodb.com/v3/ip-city/?key=45a9ded2ecea5cabc88b1b4a02e1943859f641488788efe2d2989a460644da82&format=xml'
         req = urllib2.Request(url)
         f = urllib2.urlopen(req)
         result = f.read()
@@ -137,13 +139,15 @@ def connect_openvpn(config, restart=False, sudopassword=None):
         sudopassword = utils.keyboard(
             heading=_settings.get_string(3012), hidden=True)
     openvpn = vpn.OpenVPN(_openvpn, _settings.get_datapath(
-        config), ip=_ip, port=_port, args=_args, sudo=_sudo, sudopwd=sudopassword, debug=(_settings['debug'] == 'true'))
+        config), ip=_ip, port=_port, args=_args, sudo=_sudo, sudopwd=sudopassword, timeout=_timeout, debug=(_settings['debug'] == 'true'))
     try:
         if restart:
             openvpn.disconnect()
             _state = disconnected
-        openvpn.connect()
+
         display_notification(_settings.get_string(4002) % os.path.splitext(os.path.basename(config))[0])
+        openvpn.connect()        
+        display_location()
         _state = connected
     except vpn.OpenVPNError as exception:
         if exception.errno == 1:

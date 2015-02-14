@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<strings>	
+<strings>
 	<!--Labels-->
 	<string id="1000"></string>
-	
+
 	<!--Settings-->
 	<string id="2000">OpenVPN</string>
 	<string id="2001">Import OpenVPN Configuration File</string>
@@ -12,12 +12,14 @@
 	<string id="2005">Management Port</string>
 	<string id="2006">Additional Arguments</string>
 	<string id="2007">OpenVPN Configuration</string>
+	<string id="2008">Show GeoLocalization</string>
+	<string id="2009">Timeout</string>
 	<string id="2010">Script</string>
 	<string id="2011">Use sudo when running OpenVPN</string>
 	<string id="2012">Password is required</string>
 	<string id="2020">Advanced</string>
 	<string id="2021">Debug</string>
-	
+
 	<!--Dialogs-->
 	<string id="3000">Import OpenVPN configuration file</string>
 	<string id="3001">Enter a name for OpenVPN configuration</string>
@@ -34,10 +36,10 @@
 	<string id="3012">Enter your sudo password</string>
 	<string id="3013">Select OpenVPN configuration to run</string>
 	<string id="3014">Disconnect OpenVPN</string>
-	
+
 	<!--Notifcations-->
 	<string id="4000">IP: %s; Country: %s</string>
 	<string id="4001">Stopped OpenVPN connection: %s</string>
 	<string id="4002">Started OpenVPN connection: %s</string>
-	
+
 </strings>
