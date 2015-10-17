@@ -1,3 +1,6 @@
+*** 2.1.2 ***
+Fixed encoding issue in Spanish
+
 *** 2.1.1 ***
 Added timeout parameter
 Added Location action
