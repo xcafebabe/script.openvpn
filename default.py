@@ -100,10 +100,10 @@ def get_geolocation():
 def display_location():
     geolocation = get_geolocation()
     if geolocation is not None:
-        image = _settings.get_path('%s%s%s' % (
+         image = _settings.get_path('%s%s%s' % (
             'resources/images/', geolocation.response.countrycode.string.lower(), '.png'))
-        utils.notification(_addonname, _settings.get_string(4000) % (
-            geolocation.response.ipaddress.string, geolocation.response.countryname.string.title()), image=image)
+        utils.notification(_addonname, _settings.get_string(4000).encode('utf-8') % (
+            geolocation.response.ipaddress.string.encode('utf-8'),geolocation.response.countryname.string.('utf-8')), image=image)
 
 
 def display_notification(text, subtext=False):
@@ -146,7 +146,7 @@ def connect_openvpn(config, restart=False, sudopassword=None):
             _state = disconnected
 
         display_notification(_settings.get_string(4002) % os.path.splitext(os.path.basename(config))[0])
-        openvpn.connect()        
+        openvpn.connect()
         display_location()
         _state = connected
     except vpn.OpenVPNError as exception:

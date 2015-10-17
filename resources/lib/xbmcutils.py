@@ -80,7 +80,7 @@ def keyboard(default='', heading='', hidden=False):
 
 def notification(header, message, time=5000, image=''):
     command = 'Notification(%s, %s, %s, %s)' % (header, message, time, image)
-    xbmc.executebuiltin(command)
+    xbmc.executebuiltin(command.encode('utf-8'))
 
 
 def ok(heading, line1, line2='', line3=''):
